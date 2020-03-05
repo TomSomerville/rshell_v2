@@ -1,4 +1,4 @@
-import socket
+import beachedcrypt, beachedsend, time, socket, sys, ast
 from _thread import *
 
 HOST = "localhost"
@@ -35,6 +35,22 @@ def threaded_client(conn,addr):
     conn.close()
 
 def handledata(data):
-    return data
+    arglist = [
+        "heartbeat",
+        "execcmd",
+    ]
+    decodeddata = beachedcrypt.decrypt(data.decode('utf-8'))
+    aid = decodeddata[0]
+    command = decodeddata[1]
+    if command in arglist:
+        possibles = globals().copy()
+        possibles.update(locals())
+        method = possibles.get(command)
+        return method()
+    else:
+        return b"Unknown Action"
+
+def heartbeat():
+    return b'ACK'
 
 main()
